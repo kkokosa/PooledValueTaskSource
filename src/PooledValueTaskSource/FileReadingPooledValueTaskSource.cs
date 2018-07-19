@@ -15,7 +15,6 @@ namespace PooledValueTaskSource
         private Action<object> continuation;
         private string result;
         private Exception exception;
-
         /// <summary>Current token value given to a ValueTask and then verified against the value it passes back to us.</summary>
         /// <remarks>
         /// This is not meant to be a completely reliable mechanism, doesn't require additional synchronization, etc.
@@ -24,12 +23,15 @@ namespace PooledValueTaskSource
         /// </remarks>
         private short token;
         private object state;
+
         private ObjectPool<FileReadingPooledValueTaskSource> pool;
         private ExecutionContext executionContext;
         private object scheduler;
 
         public string GetResult(short token)
         {
+            if (token != this.token)
+                ThrowMultipleContinuations();
             Console.WriteLine("GetResult");
             var exception = this.exception;
             var result = ResetAndReleaseOperation();
@@ -44,7 +46,6 @@ namespace PooledValueTaskSource
         {
             if (token != this.token)
                 ThrowMultipleContinuations();
-
             Console.Write("GetStatus:");
             if (result == null)
             {
@@ -67,7 +68,7 @@ namespace PooledValueTaskSource
 
             if ((flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) != 0)
             {
-                executionContext = ExecutionContext.Capture();
+                this.executionContext = ExecutionContext.Capture();
             }
 
             if ((flags & ValueTaskSourceOnCompletedFlags.UseSchedulingContext) != 0)
@@ -75,14 +76,14 @@ namespace PooledValueTaskSource
                 SynchronizationContext sc = SynchronizationContext.Current;
                 if (sc != null && sc.GetType() != typeof(SynchronizationContext))
                 {
-                    scheduler = sc;
+                    this.scheduler = sc;
                 }
                 else
                 {
                     TaskScheduler ts = TaskScheduler.Current;
                     if (ts != TaskScheduler.Default)
                     {
-                        scheduler = ts;
+                        this.scheduler = ts;
                     }
                 }
             }

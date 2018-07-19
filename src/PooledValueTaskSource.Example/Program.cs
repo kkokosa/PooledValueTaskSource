@@ -42,6 +42,13 @@ namespace PooledValueTaskSource
 
     public class Engine
     {
+        public Task<string> ReadFileAsync(string filename)
+        {
+            if (!File.Exists(filename))
+                return Task.FromResult(string.Empty);
+            return File.ReadAllTextAsync(filename);
+        }
+
         public async ValueTask<string> ReadFileAsync1(string filename)
         {
             if (!File.Exists(filename))
