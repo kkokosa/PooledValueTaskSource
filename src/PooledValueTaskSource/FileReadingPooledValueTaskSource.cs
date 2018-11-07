@@ -217,7 +217,7 @@ namespace PooledValueTaskSource
             throw new InvalidOperationException("Multiple awaiters are not allowed");
         }
 
-        protected virtual string ResetAndReleaseOperation()
+        private string ResetAndReleaseOperation()
         {
             string result = this.result;
             this.token++;
