@@ -53,7 +53,7 @@ namespace PooledValueTaskSource
                 return ValueTaskSourceStatus.Pending;
             }
             Console.WriteLine("completed: succeeded or faulted");
-            return exception != null ? ValueTaskSourceStatus.Succeeded : ValueTaskSourceStatus.Faulted;
+            return exception == null ? ValueTaskSourceStatus.Succeeded : ValueTaskSourceStatus.Faulted;
         }
 
         /// <summary>Called on awaiting so:
